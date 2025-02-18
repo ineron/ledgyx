@@ -9,4 +9,4 @@ Beta testing is now live, and we invite everyone to join.
 
 Join the beta and get early access! 🔗 [[registration link](https://ledgyx.com/login)]
 
-Documentations linc 🔗  [https://docs.ledgyx.com/]
+ 🔗  [[Documentations linc] (https://docs.ledgyx.com/)]
