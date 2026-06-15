@@ -1,314 +1,113 @@
-We’re excited to introduce Ledgyx – a new platform for flexible API creation using SQL! 🚀  
-Beta testing is now live, and we invite everyone to join.  
+# Ledgyx Admin
 
-🔹 SQL instead of complex GraphQL queries  
-🔹 Flexible data structure with zero downtime  
-🔹 No-Code API – set up in minutes  
-🔹 Web3 support & blockchain data analysis  
-🔹 Solution marketplace  
+<p align="center">
+  <img src="images/banner.png" alt="Ledgyx Admin" width="100%">
+</p>
 
-# Custom SQL Language Guide
+**Ledgyx Admin** is the control panel for the Ledgyx operational platform — a tool for building APIs, managing data, automating workflows, creating websites, and deploying AI agents, all in one place.
 
-## Key Differences from Standard SQL
+---
 
-### 1. Mandatory Result Type Declaration
-Every query MUST end with result type specification:
+## What you can build
 
-**Built-in types:**
-- `TYPE OBJECT` - single record
-- `TYPE LIST` - multiple records  
-- `TYPE API OBJECT` - API object
-- `TYPE API LIST` - API list
+- **REST APIs** — define SQL event handlers and expose them as HTTP endpoints with automatic documentation
+- **Data models** — design entities with typed fields; the platform stores and queries them for you
+- **Websites & landing pages** — author Mustache HTML templates wired to data events, served under your domain
+- **AI agents** — visually connect agents, skills, and triggers on a graph canvas; run them on demand or via Telegram/webhook
+- **Automations** — subscribe to data changes, blockchain events, and timers; chain events with CALL providers
 
-**Custom types:**
-- `TYPE CustomName[]` - custom list type
-- `TYPE ANY[]` - generic list
+---
 
-```sql
-SELECT name, id FROM dictionary.users TYPE LIST;
-SELECT name FROM dictionary.users WHERE id = 1 TYPE OBJECT;
-```
+## Screenshots
 
-### 2. Object Type Prefixes
-System uses different object types with distinct syntax and properties:
+### Dashboard
+<p align="center">
+  <img src="images/home-dashboard.png" alt="Dashboard with KPI cards and charts" width="90%">
+</p>
 
-- `Dictionary.` - data dictionaries/references (standard CRUD operations)
-- `Contract.` - blockchain smart contracts (read-only, special functions)
-- `Operation.` - operational/transactional data (business logic)
-- `Ethereum.` - Ethereum blockchain access (external data source)
-- `Enum.` - enumerations (predefined value sets)
-- `Const.` - system constants (global configuration)
+### SQL Playground
+<p align="center">
+  <img src="images/playground.png" alt="SQL Playground with entity tree and results" width="90%">
+</p>
 
-Each type has unique capabilities:
-```sql
--- Dictionary: standard table operations
-SELECT * FROM Dictionary.users WHERE id = 1 TYPE LIST;
+### AI Agents Canvas
+<p align="center">
+  <img src="images/ai-agents-canvas.png" alt="AI Agents visual graph canvas" width="90%">
+</p>
 
--- Contract: blockchain data with parse functions  
-SELECT parse(addr, topics, data) FROM Contract.token TYPE LIST;
+### AI Builder Chat
+<p align="center">
+  <img src="images/ai-builder-chat-pinned.png" alt="AI Builder chat panel pinned" width="90%">
+</p>
 
--- Ethereum: external blockchain queries with parameters
-FROM Ethereum.transactions.log(WHERE "to"=&address LIMIT 100) as trn
+### API Builder
+<p align="center">
+  <img src="images/api-builder-docs.png" alt="API Builder — Docs mode" width="90%">
+</p>
 
--- Enum: dot notation access
-SELECT enum.status.active
+### File Manager
+<p align="center">
+  <img src="images/file-manager-page.png" alt="File Manager" width="90%">
+</p>
 
--- Const: global values
-SELECT const.api_url TYPE OBJECT;
-```
+---
 
-### 3. Query Parameters
-Parameters passed with `&` symbol:
-```sql
-WHERE user_id = &userId::NUMBER
-WHERE name = &userName::TEXT  
-WHERE ref = &userRef::UUID
-WHERE address = &contractAddress::HEX
-WHERE created > &startDate::DATE('DD.MM.YYYY')
-```
+## Getting started
 
-**Parameter types:**
-- `::NUMBER` - numbers
-- `::TEXT` - text
-- `::UUID` - UUID
-- `::HEX` - hex addresses  
-- `::DATE('format')` - dates with format
+1. **Log in** — use your email/password or Google/GitHub OAuth
+2. **Select a configuration** — go to [Settings](docs/pages/settings.md) and activate the workspace you want to work in
+3. **Explore** — the sidebar gives you access to all sections
 
-### 4. External Data Structures
-Data can be passed as structures:
-```sql
-FROM &data as d(id int, name text, value numeric)
-FROM &params as x(ref uuid, id int, name text, value text)
-```
+New to Ledgyx? Start with:
+- [Platform Overview](docs/architecture.md) — understand core concepts
+- [Playground](docs/pages/playground.md) — run your first query
+- [Events](docs/pages/events.md) — create your first API handler
+- [AI Builder](docs/ai-builder.md) — let the AI build a project for you
 
-### 5. Dictionary Creation
-```sql
-CREATE DICTIONARY IF NOT EXISTS users (
-    id NUMERIC NOT NULL,
-    name TEXT(100),
-    address DICTIONARY.address FIELD,  -- reference to another dictionary
-    PRIMARY KEY (id)
-);
-```
+---
 
-### 6. Operation Tables
-```sql
-CREATE OPERATION IF NOT EXISTS operation_order(
-    goods DICTIONARY.users FIELD NOT NULL,
-    storage DICTIONARY.acl FIELD NOT NULL,
-    value NUMERIC(12,2) FIELD NOT NULL
-);
-```
+## Navigation
 
-### 7. Constants
-```sql
-CREATE CONST.main_url TYPE TEXT;
-UPDATE CONST SET main_url = "https://example.com";
-SELECT const.main_url TYPE OBJECT;
-```
+| Section | What it's for |
+|---|---|
+| **Home** | Dashboard with KPI cards and charts for your active configuration |
+| **Playground** | Interactive SQL console with entity tree and query history |
+| **Events** | Define SQL handlers for your API methods |
+| **API** | Manage endpoint groups, test your REST API, view auto-generated docs |
+| **Entities** | Design data model schemas (types, fields) |
+| **Subscriptions** | React to data changes, blockchain events, and timers |
+| **Webhooks** | Configure outbound HTTP integrations |
+| **Templates** | Author Mustache HTML templates and JavaScript files |
+| **Sitemap** | Map URL paths to templates and event handlers |
+| **File Manager** | Upload and manage files on your tenant disk |
+| **Settings** | Configurations, API keys, domains, AI credentials, Telegram bots, and more |
+| **Versions** | Snapshot event changes and promote them to production |
+| **AI Agents** | Build and deploy AI agents on a visual graph canvas |
 
-### 8. Enumerations
-```sql
-CREATE ENUM IF NOT EXISTS digits AS (one, two, three);
-SELECT enum.digits.one;
-```
+---
 
-### 9. Nested Subqueries as Objects
-```sql
-SELECT user.name,
-(SELECT addr.city, addr.street 
- FROM dictionary.address as addr 
- WHERE addr.id = user.id TYPE OBJECT) as address
-FROM dictionary.users as user TYPE LIST;
-```
+## Documentation
 
-### 10. Blockchain Functions
-```sql
--- Parse transaction data
-SELECT parse(&contractAddress, trn.topics, trn.data) as parsed_data
-FROM Ethereum.transactions.log(WHERE "to"=&contractAddress LIMIT 100) as trn
+### Platform
+- [Platform Overview](docs/architecture.md)
+- [Getting Started](docs/getting-started.md)
+- [Configuration & Multi-tenancy](docs/configuration.md)
+- [Ineron SQL Reference](docs/ineron-sql.md)
 
--- External API calls
-SELECT call(TG "tg_bot_config", msg.message) as result
-FROM (SELECT &message as message TYPE OBJECT) as msg TYPE OBJECT;
-```
+### Pages
+- [Home / Dashboard](docs/pages/home.md)
+- [Playground](docs/pages/playground.md)
+- [Events](docs/pages/events.md)
+- [API Builder](docs/pages/api-builder.md)
+- [Entities](docs/pages/entities.md)
+- [Templates](docs/pages/templates.md)
+- [Sitemap](docs/pages/sitemap.md)
+- [Subscriptions](docs/pages/subscriptions.md)
+- [Webhooks](docs/pages/webhooks.md)
+- [File Manager](docs/pages/file-manager.md)
+- [Settings](docs/pages/settings.md)
+- [Versions](docs/pages/versions.md)
 
-### 11. Special Functions
-- `uuid(field1, field2)` - generate UUID
-- `now()` - current time
-- `NULLREF()` - null reference
-- `parse(address, topics, data)` - parse blockchain data
-- `call(service, params)` - external service call
-
-### 12. Array/Object Access
-```sql
--- Array element access
-SELECT &returnValues[0].token0, &returnValues."0", &raw.topics[1]
-
--- Object field access
-SELECT &returnValues.sender, &params.ref
-```
-
-### 13. INSERT with Conflicts
-```sql
-INSERT INTO dictionary.users(id, name)
-SELECT x.id, x.name 
-FROM &params as x(id int, name text) 
-ON CONFLICT(ref) DO UPDATE SET name=x.name, id=EXCLUDE.id;
-```
-
-### 14. JOIN with Blockchain Data
-```sql
-FROM Contract.uniswapv2factory as uv
-INNER JOIN ethereum.transactions.data(WHERE "to"=uv.pair LIMIT 1) as trn ON true
-```
-
-### 15. DELETE Operations
-```sql
--- Regular delete
-DELETE FROM dictionary.users WHERE ref = &ref::UUID;
-
--- Permanent delete
-DELETE PERMANENTLY FROM dictionary.events WHERE id = 100;
-```
-
-### 16. Quoted Reserved Words
-Fields with reserved words use double quotes:
-```sql
-SELECT sm."event", sm."type", p."object"
-```
-
-### 17. Comparison and Logic Operators
-```sql
--- Comparison: =, <>, !=, <, >, <=, >=
--- Logic: AND, OR, NOT
--- Special: LIKE, REGEXP, IN, EXISTS, BETWEEN
-
-WHERE field = value AND (field2 IN (1,2,3) OR field3 LIKE '%pattern%')
-WHERE EXISTS(SELECT 1 FROM other_table WHERE condition)
-WHERE field BETWEEN min_val AND max_val
-```
-
-### 18. CASE Expressions
-```sql
-SELECT CASE 
-  WHEN condition1 THEN 'value1'
-  WHEN condition2 THEN 'value2' 
-  ELSE 'default_value' 
-END as result_field
-
--- Simple CASE form
-SELECT CASE field_value
-  WHEN 1 THEN 'one'
-  WHEN 2 THEN 'two'
-  ELSE 'other'
-END as text_value
-```
-
-### 19. System Functions
-```sql
--- Date/time
-SELECT CURRENT_TIMESTAMP, CURRENT_DATE, CURRENT_TIME
-SELECT now()
-SELECT version()
-
--- String functions  
-SELECT SUBSTRING(field FROM 1 FOR 10)
-SELECT TRIM(LEADING ' ' FROM field)
-
--- Aggregate functions
-SELECT COUNT(*), COUNT(field)
-
--- Conditional functions
-SELECT ISNULL(field1, field2, 'default') -- COALESCE equivalent
-```
-
-### 20. Type Casting (CAST)
-```sql
--- General syntax
-SELECT field::TYPE_NAME
-SELECT &param::UUID, &value::NUMBER, &text::TEXT
-
--- Special date syntax
-SELECT '2024-01-01'::DATE('YYYY-MM-DD')
-```
-
-### 21. Interval Expressions
-```sql
-SELECT DATE_ADD(date_field, INTERVAL 1 DAY)
-SELECT DATE_SUB(date_field, INTERVAL 1 HOUR)
-
--- Supported intervals:
--- DAY, HOUR, MINUTE, SECOND, YEAR, MONTH
--- DAY_HOUR, DAY_MINUTE, DAY_SECOND, HOUR_MINUTE, HOUR_SECOND
--- YEAR_MONTH, DAY_MICROSECOND, HOUR_MICROSECOND
-```
-
-### 22. Arithmetic and Bitwise Operations
-```sql
-SELECT field1 + field2, field1 - field2, field1 * field2, field1 / field2
-SELECT field1 % field2, field1 MOD field2
-SELECT field1 & field2, field1 | field2, field1 ^ field2  -- bitwise
-SELECT field1 << 2, field1 >> 1  -- shifts
-```
-
-### 23. GROUP BY and ORDER BY
-```sql
-SELECT field1, COUNT(*)
-FROM table_name
-GROUP BY field1 
-HAVING COUNT(*) > 1
-ORDER BY field1 ASC, field2 DESC
-LIMIT 10 OFFSET 20
-```
-
-### 24. Subqueries in Various Places
-```sql
--- In SELECT
-SELECT (SELECT COUNT(*) FROM other_table WHERE condition) as count_field
-
--- In WHERE with ANY/ALL/SOME
-WHERE field = ANY(SELECT field FROM other_table)
-WHERE field > ALL(SELECT field FROM other_table)
-
--- Existence checks
-WHERE EXISTS(SELECT 1 FROM other_table WHERE condition)
-```
-
-## Common Query Examples
-
-### Data Selection
-```sql
-SELECT u.name, u.id 
-FROM Dictionary.users as u 
-WHERE u.name LIKE &pattern::TEXT 
-LIMIT &limit TYPE LIST;
-```
-
-### Data Insertion
-```sql
-INSERT INTO Dictionary.users(ref, id, name)
-SELECT uuid(d.id, d.name), d.id, d.name
-FROM &data as d(id int, name text) TYPE LIST;
-```
-
-### Updates
-```sql
-UPDATE Dictionary.users as usr
-SET name = &fields.name
-WHERE id = &fields.id::NUMBER;
-```
-
-### Structure Creation
-```sql
-CREATE DICTIONARY IF NOT EXISTS orders (
-    id NUMERIC NOT NULL,
-    user DICTIONARY.users FIELD,
-    created TIMESTAMP DEFAULT now(),
-    PRIMARY KEY (id)
-);
-```
-
-Join the beta and get early access! 🔗 [[registration link](https://ledgyx.com/login)]
-
- 🔗  [[Documentations link](https://docs.ledgyx.com/)]
+### AI
+- [AI Agents](docs/pages/ai-agents.md)
+- [AI Builder](docs/ai-builder.md)
